@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -26,11 +27,15 @@ Options:
 
 //Pop all values from the given redis list and write the values to stdout
 func lpop(list string, client *redis.Client) {
-	value, err := client.LPop(list)
-	if err != nil {
-		log.Fatalf("Could not LPOP %s: %s\n", list, err.Error())
-	} else {
-		log.Println(value)
+	length, _ := client.LLen(list)
+	for length > 0 {
+		value, err := client.LPop(list)
+		if err != nil {
+			log.Fatalf("Could not LPOP%s: %s\n", list, err.Error())
+		} else {
+			fmt.Println(value)
+		}
+		length, _ = client.LLen(list)
 	}
 }
 
@@ -65,8 +70,7 @@ func redisConfig(args map[string]interface{}) (string, uint) {
 }
 
 func main() {
-
-	args, _ := docopt.Parse(usage, nil, true, "rqgo 1.0", false)
+	args, _ := docopt.Parse(usage, nil, true, "pusred 0.9", false)
 	list := args["<list>"].(string)
 	host, port := redisConfig(args)
 
