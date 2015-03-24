@@ -1,4 +1,4 @@
-# pusred
+# pusred [![Build Status](https://travis-ci.org/lukasmartinelli/pusred.svg)](https://travis-ci.org/lukasmartinelli/pusred)
 
 A simple Redis client that connects stdin and stdout with `LPUSH` and `LPOP`.
 
