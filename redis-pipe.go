@@ -49,9 +49,7 @@ func read(list string, client *redis.Client, count int, blocking bool) {
 		if err != nil {
 			os.Exit(0)
 		} else {
-			for _, value := range values {
-				fmt.Println(value)
-			}
+			fmt.Println(values[1])
 		}
 	}
 }
@@ -59,12 +57,15 @@ func read(list string, client *redis.Client, count int, blocking bool) {
 //Push all values from stdin to a given redis list
 func write(list string, client *redis.Client) {
 	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		value := scanner.Text()
-		_, err := client.LPush(list, value)
-		if err != nil {
-			log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
+	values := make([]interface{}, 64)
+	for i := 0; i < 64; i++ {
+		for scanner.Scan() {
+			values = append(values, scanner.Text())
 		}
+	}
+	_, err := client.LPush(list, values...)
+	if err != nil {
+		log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
 	}
 }
 
