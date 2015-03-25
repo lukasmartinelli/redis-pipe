@@ -48,3 +48,8 @@ on a single server.
 ```
 ./redis-pipe logs > logs.txt
 ```
+
+## Usage
+
+You can set the `REDIS_HOST` and `REDIS_PORT` environment variables for
+easy configuration.
