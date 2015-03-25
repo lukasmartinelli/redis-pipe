@@ -1,4 +1,4 @@
-# redis-pipe [![Build Status](https://travis-ci.org/lukasmartinelli/pusred.svg)](https://travis-ci.org/lukasmartinelli/pusred)
+# redis-pipe [![Build Status](https://travis-ci.org/lukasmartinelli/redis-pipe.svg?branch=master)](https://travis-ci.org/lukasmartinelli/redis-pipe)
 
 **redis-pipe** allows you to treat [Redis Lists](http://redis.io/topics/data-types#lists)
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
