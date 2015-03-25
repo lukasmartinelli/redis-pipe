@@ -7,40 +7,57 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/andrew-d/go-termutil"
 	"github.com/docopt/docopt-go"
 	"menteslibres.net/gosexy/redis"
 )
 
 const usage string = `
-Push and pop values from Redis lists.
+Treat Redis Lists like Unix Pipes by connecting stdin with LPUSH
+and LPOP with stout.
 
 Usage:
-    pusred lpop <list> [--host=<host>] [--port=<port>]
-    pusred lpush <list> [--host=<host>] [--port=<port>]
-    pusred (-h | --help)
+    redis-pipe <list> [-n <count>] [--blocking] [--host=<host>] [--port=<port>]
+    redis-pipe (-h | --help)
 
 Options:
     -h --help         Show this screen
+    --blocking        Read in blocking mode from list (infinite timeout)
+	--count=<count>   Stop reading from list after count [default: -1]
     --host=<host>     Redis host [default: localhost]
     --port=<port>     Redis port [default: 6379]
 `
 
 //Pop all values from the given redis list and write the values to stdout
-func lpop(list string, client *redis.Client) {
-	length, _ := client.LLen(list)
-	for length > 0 {
-		value, err := client.LPop(list)
-		if err != nil {
-			log.Fatalf("Could not LPOP%s: %s\n", list, err.Error())
+func readAll(list string, client *redis.Client, blocking bool) {
+	for {
+		read(list, client, 1, blocking)
+	}
+}
+
+func read(list string, client *redis.Client, count int, blocking bool) {
+	for i := 0; i < count; i++ {
+		var values []string
+		var err error
+
+		if blocking {
+			values, err = client.BLPop(0, list)
 		} else {
-			fmt.Println(value)
+			values, err = client.BLPop(1, list)
 		}
-		length, _ = client.LLen(list)
+
+		if err != nil {
+			os.Exit(0)
+		} else {
+			for _, value := range values {
+				fmt.Println(value)
+			}
+		}
 	}
 }
 
 //Push all values from stdin to a given redis list
-func lpush(list string, client *redis.Client) {
+func write(list string, client *redis.Client) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		value := scanner.Text()
@@ -54,8 +71,8 @@ func lpush(list string, client *redis.Client) {
 //Return host and port of redis server inferred from either
 //environment variables or command line argumentsof redis server
 func redisConfig(args map[string]interface{}) (string, uint) {
-	host := os.Getenv("RQ_HOST")
-	port := os.Getenv("RQ_PORT")
+	host := os.Getenv("REDIS_HOST")
+	port := os.Getenv("REDIS_PORT")
 
 	if host == "" {
 		host = args["--host"].(string)
@@ -72,7 +89,10 @@ func redisConfig(args map[string]interface{}) (string, uint) {
 func main() {
 	args, _ := docopt.Parse(usage, nil, true, "pusred 0.9", false)
 	list := args["<list>"].(string)
+	blockingMode := args["--blocking"].(bool)
 	host, port := redisConfig(args)
+	countStr, _ := args["--count"].(string)
+	count, _ := strconv.ParseInt(countStr, 10, -1)
 
 	client := redis.New()
 	err := client.Connect(host, port)
@@ -80,12 +100,14 @@ func main() {
 		log.Fatalf("Connecting to Redis failed: %s\n", err.Error())
 	}
 
-	if args["lpush"].(bool) {
-		lpush(list, client)
-	}
-
-	if args["lpop"].(bool) {
-		lpop(list, client)
+	if termutil.Isatty(os.Stdin.Fd()) {
+		if count > 0 {
+			read(list, client, int(count), blockingMode)
+		} else {
+			readAll(list, client, blockingMode)
+		}
+	} else {
+		write(list, client)
 	}
 
 	client.Quit()

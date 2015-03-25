@@ -5,6 +5,7 @@ go:
   - 1.4
   - tip
 install:
+  - go get github.com/andrew-d/go-termutil
   - go get github.com/docopt/docopt-go
   - go get menteslibres.net/gosexy/redis
 

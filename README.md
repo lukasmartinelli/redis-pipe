@@ -1,40 +1,50 @@
-# pusred [![Build Status](https://travis-ci.org/lukasmartinelli/pusred.svg)](https://travis-ci.org/lukasmartinelli/pusred)
+# redis-pipe [![Build Status](https://travis-ci.org/lukasmartinelli/pusred.svg)](https://travis-ci.org/lukasmartinelli/pusred)
 
-A simple Redis client that connects stdin and stdout with `LPUSH` and `LPOP`.
+**redis-pipe** allows you to treat [Redis Lists](http://redis.io/topics/data-types#lists)
+as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
+It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
+
+## Build
+
+Install dependencies
+
+```
+go get github.com/andrew-d/go-termutil
+go get github.com/docopt/docopt-go
+go get menteslibres.net/gosexy/redis
+```
+
+Build binary
+
+```
+go build redis-pipe.go
+```
+
+## How it works
+
+### Writing from stdin to Redis List
+
+**redis-pipe** takes your values and generates `RPUSH` commands
+(generating a valid [Redis protocol](http://redis.io/topics/protocol))
+that are then piped into `redis-cli --pipe` ([Redis Mass Insertion](http://redis.io/topics/mass-insert))
+
+### Reading from Redis List to stdout
+
+`LPOP` all the values from the list and write them to `stdout`.
 
 ## Examples
 
-Add value to list
+### Centralized Logging
+
+In this sample we pipe the syslog to a Redis List called `log`.
 
 ```
-echo "Hello" | ./pusred lpush greetings
+tail -f /var/log/syslog | ./redis-pipe logs
 ```
 
-Pipe syslog to Redis
+You can now easily collect all the syslogs of your machines
+on a single server.
 
 ```
-tail -f /var/log/syslog | ./pusred lpush logs
+./redis-pipe logs > logs.txt
 ```
-
-Read all values from list
-
-```
-./pusred lpop greetings
-```
-
-## Usage
-
-```
-Usage:
-    pusred lpop <list> [--host=<host>] [--port=<port>]
-    pusred lpush <list> [--host=<host>] [--port=<port>]
-    pusred (-h | --help)
-
-Options:
-    -h --help         Show this screen
-    --host=<host>     Redis host [default: localhost]
-    --port=<port>     Redis port [default: 6379]
-```
-
-You can also set the environment variables `RQ_HOST` and `RQ_PORT` to
-define the Redis connection.
