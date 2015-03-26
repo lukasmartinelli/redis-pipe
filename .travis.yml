@@ -7,5 +7,5 @@ go:
 install:
   - go get github.com/andrew-d/go-termutil
   - go get github.com/codegangsta/cli
-  - go get menteslibres.net/gosexy/redis
+  - go get github.com/redigo/redis
 

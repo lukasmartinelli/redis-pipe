@@ -5,76 +5,52 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/andrew-d/go-termutil"
 	"github.com/codegangsta/cli"
-	"menteslibres.net/gosexy/redis"
+	"github.com/garyburd/redigo/redis"
 )
 
 //Pop all values from the given redis list and write the values to stdout
-func readAll(list string, client *redis.Client, blocking bool) {
+func readAll(list string, client redis.Conn) {
 	for {
-		read(list, client, 1, blocking)
+		read(list, client, 64)
 	}
 }
 
-func read(list string, client *redis.Client, count int, blocking bool) {
+func read(list string, conn redis.Conn, count int) {
 	for i := 0; i < count; i++ {
-		var values []string
-		var err error
-
-		if blocking {
-			values, err = client.BLPop(0, list)
-		} else {
-			values, err = client.BLPop(1, list)
-		}
+		conn.Send("LPOP", list)
+	}
+	conn.Flush()
+	for i := 0; i < count; i++ {
+		value, err := redis.String(conn.Receive())
 
 		if err != nil {
 			os.Exit(0)
-		} else {
-			// The 1st value is the list name and only the 2nd is the actual value
-			value := values[1]
-			value = strings.TrimSpace(value)
-			if value != "" {
-				fmt.Println(value)
-			}
+		}
+		if value != "" {
+			fmt.Println(value)
 		}
 	}
 }
 
 //Push all values from stdin to a given redis list
-func write(list string, client *redis.Client) {
+func write(list string, conn redis.Conn) {
 	scanner := bufio.NewScanner(os.Stdin)
-	values := make([]interface{}, 64)
 	for i := 0; i < 64; i++ {
 		for scanner.Scan() {
-			values = append(values, scanner.Text())
+			value := strings.TrimSpace(scanner.Text())
+			if value != "" {
+				conn.Send("LPUSH", list, value)
+			}
 		}
 	}
-	_, err := client.LPush(list, values...)
+	err := conn.Flush()
 	if err != nil {
 		log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
 	}
-}
-
-//Return host and port of redis server inferred from either
-//environment variables or command line argumentsof redis server
-func redisConfig(args map[string]interface{}) (string, uint) {
-	host := os.Getenv("REDIS_HOST")
-	port := os.Getenv("REDIS_PORT")
-
-	if host == "" {
-		host = args["--host"].(string)
-	}
-
-	if port == "" {
-		port = args["--port"].(string)
-	}
-
-	portNum, _ := strconv.ParseUint(port, 10, 6379)
-	return host, uint(portNum)
 }
 
 func main() {
@@ -99,10 +75,6 @@ func main() {
 			Value: -1,
 			Usage: "Redis Stop reading from list after count",
 		},
-		cli.BoolFlag{
-			Name:  "blocking",
-			Usage: "Read in blocking mode from list (infinite timeout)",
-		},
 	}
 
 	app.Action = func(c *cli.Context) {
@@ -112,24 +84,22 @@ func main() {
 			os.Exit(1)
 		}
 
-		client := redis.New()
-		err := client.Connect(c.String("host"), uint(c.Int("port")))
+		conn, err := redis.Dial("tcp", fmt.Sprintf("%s:%d", c.String("host"), c.Int("port")))
 		if err != nil {
 			log.Fatalf("Connecting to Redis failed: %s\n", err.Error())
 		}
 
 		if termutil.Isatty(os.Stdin.Fd()) {
 			count := c.Int("count")
-			blockingMode := c.Bool("blocking")
 			if count > 0 {
-				read(list, client, count, blockingMode)
+				read(list, conn, count)
 			} else {
-				readAll(list, client, blockingMode)
+				readAll(list, conn)
 			}
 		} else {
-			write(list, client)
+			write(list, conn)
 		}
-		client.Quit()
+		conn.Close()
 	}
 
 	app.Run(os.Args)
