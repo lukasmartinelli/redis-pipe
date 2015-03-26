@@ -8,25 +8,9 @@ import (
 	"strconv"
 
 	"github.com/andrew-d/go-termutil"
-	"github.com/docopt/docopt-go"
+	"github.com/codegangsta/cli"
 	"menteslibres.net/gosexy/redis"
 )
-
-const usage string = `
-Treat Redis Lists like Unix Pipes by connecting stdin with LPUSH
-and LPOP with stout.
-
-Usage:
-    redis-pipe <list> [-n <count>] [--blocking] [--host=<host>] [--port=<port>]
-    redis-pipe (-h | --help)
-
-Options:
-    -h --help         Show this screen
-    --blocking        Read in blocking mode from list (infinite timeout)
-	--count=<count>   Stop reading from list after count [default: -1]
-    --host=<host>     Redis host [default: localhost]
-    --port=<port>     Redis port [default: 6379]
-`
 
 //Pop all values from the given redis list and write the values to stdout
 func readAll(list string, client *redis.Client, blocking bool) {
@@ -88,28 +72,59 @@ func redisConfig(args map[string]interface{}) (string, uint) {
 }
 
 func main() {
-	args, _ := docopt.Parse(usage, nil, true, "pusred 0.9", false)
-	list := args["<list>"].(string)
-	blockingMode := args["--blocking"].(bool)
-	host, port := redisConfig(args)
-	countStr, _ := args["--count"].(string)
-	count, _ := strconv.ParseInt(countStr, 10, -1)
-
-	client := redis.New()
-	err := client.Connect(host, port)
-	if err != nil {
-		log.Fatalf("Connecting to Redis failed: %s\n", err.Error())
+	app := cli.NewApp()
+	app.Name = "redis-pipe"
+	app.Usage = "connect stdin with LPUSH and LPOP with stout."
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "host",
+			Value:  "localhost",
+			Usage:  "Redis host",
+			EnvVar: "REDIS_HOST",
+		},
+		cli.IntFlag{
+			Name:   "port",
+			Value:  6379,
+			Usage:  "Redis port",
+			EnvVar: "REDIS_PORT",
+		},
+		cli.IntFlag{
+			Name:  "count",
+			Value: -1,
+			Usage: "Redis Stop reading from list after count",
+		},
+		cli.BoolFlag{
+			Name:  "blocking",
+			Usage: "Read in blocking mode from list (infinite timeout)",
+		},
 	}
 
-	if termutil.Isatty(os.Stdin.Fd()) {
-		if count > 0 {
-			read(list, client, int(count), blockingMode)
-		} else {
-			readAll(list, client, blockingMode)
+	app.Action = func(c *cli.Context) {
+		list := c.Args().First()
+		if list == "" {
+			fmt.Println("Please provide name of the list")
+			os.Exit(1)
 		}
-	} else {
-		write(list, client)
+
+		client := redis.New()
+		err := client.Connect(c.String("host"), uint(c.Int("port")))
+		if err != nil {
+			log.Fatalf("Connecting to Redis failed: %s\n", err.Error())
+		}
+
+		if termutil.Isatty(os.Stdin.Fd()) {
+			count := c.Int("count")
+			blockingMode := c.Bool("blocking")
+			if count > 0 {
+				read(list, client, count, blockingMode)
+			} else {
+				readAll(list, client, blockingMode)
+			}
+		} else {
+			write(list, client)
+		}
+		client.Quit()
 	}
 
-	client.Quit()
+	app.Run(os.Args)
 }
