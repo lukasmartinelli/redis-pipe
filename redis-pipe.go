@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/andrew-d/go-termutil"
 	"github.com/codegangsta/cli"
@@ -33,7 +34,12 @@ func read(list string, client *redis.Client, count int, blocking bool) {
 		if err != nil {
 			os.Exit(0)
 		} else {
-			fmt.Println(values[1])
+			// The 1st value is the list name and only the 2nd is the actual value
+			value := values[1]
+			value = strings.TrimSpace(value)
+			if value != "" {
+				fmt.Println(value)
+			}
 		}
 	}
 }
