@@ -36,10 +36,16 @@ func read(list string, conn redis.Conn, count int) {
 	}
 }
 
+func writeAll(list string, client redis.Conn) {
+	for {
+		write(list, client, 16)
+	}
+}
+
 //Push all values from stdin to a given redis list
-func write(list string, conn redis.Conn) {
+func write(list string, conn redis.Conn, count int) {
 	scanner := bufio.NewScanner(os.Stdin)
-	for i := 0; i < 64; i++ {
+	for i := 0; i < count; i++ {
 		for scanner.Scan() {
 			value := strings.TrimSpace(scanner.Text())
 			if value != "" {
@@ -47,9 +53,12 @@ func write(list string, conn redis.Conn) {
 			}
 		}
 	}
-	err := conn.Flush()
-	if err != nil {
-		log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
+	conn.Flush()
+	for i := 0; i < count; i++ {
+		_, err := redis.Int(conn.Receive())
+		if err != nil {
+			log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
+		}
 	}
 }
 
@@ -97,7 +106,7 @@ func main() {
 				readAll(list, conn)
 			}
 		} else {
-			write(list, conn)
+			writeAll(list, conn)
 		}
 		conn.Close()
 	}
