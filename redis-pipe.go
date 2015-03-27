@@ -69,7 +69,7 @@ func write(list string, conn redis.Conn) {
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "Reading standard input:", err)
 	}
-	//writeBatch(list, conn, values)
+	writeBatch(list, conn, values)
 }
 
 func main() {
