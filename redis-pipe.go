@@ -36,30 +36,40 @@ func read(list string, conn redis.Conn, count int) {
 	}
 }
 
-func writeAll(list string, client redis.Conn) {
-	for {
-		write(list, client, 16)
+func writeBatch(list string, conn redis.Conn, values []string) {
+	conn.Send("MULTI")
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			conn.Send("LPUSH", list, value)
+		}
+	}
+	_, err := redis.Values(conn.Do("EXEC"))
+	if err != nil {
+		log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
 	}
 }
 
 //Push all values from stdin to a given redis list
-func write(list string, conn redis.Conn, count int) {
+func write(list string, conn redis.Conn) {
+	var values []string
+	count := 0
 	scanner := bufio.NewScanner(os.Stdin)
-	for i := 0; i < count; i++ {
-		for scanner.Scan() {
-			value := strings.TrimSpace(scanner.Text())
-			if value != "" {
-				conn.Send("LPUSH", list, value)
-			}
+	for scanner.Scan() {
+		value := scanner.Text()
+		values = append(values, value)
+		count++
+
+		if count >= 64 {
+			writeBatch(list, conn, values)
+			values = make([]string, 0)
+			count = 0
 		}
 	}
-	conn.Flush()
-	for i := 0; i < count; i++ {
-		_, err := redis.Int(conn.Receive())
-		if err != nil {
-			log.Fatalf("Could not LPUSH: %s \"%s\"\n", list, err.Error())
-		}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "Reading standard input:", err)
 	}
+	//writeBatch(list, conn, values)
 }
 
 func main() {
@@ -106,7 +116,7 @@ func main() {
 				readAll(list, conn)
 			}
 		} else {
-			writeAll(list, conn)
+			write(list, conn)
 		}
 		conn.Close()
 	}
