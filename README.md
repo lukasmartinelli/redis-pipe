@@ -4,6 +4,16 @@
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
 It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
 
+## Install
+
+Simply download the release and make it executable (prebuilt binaries are for Linux only for now).
+
+```
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4/redis-pipe
+chmod +x redis-pipe
+./redis-pipe --help
+```
+
 ## Build
 
 Install dependencies
