@@ -11,7 +11,7 @@ Install dependencies
 ```
 go get github.com/andrew-d/go-termutil
 go get github.com/docopt/docopt-go
-go get menteslibres.net/gosexy/redis
+go get github.com/garyburd/redigo/redis"
 ```
 
 Build binary
@@ -22,15 +22,39 @@ go build redis-pipe.go
 
 ## How it works
 
+### Configuration
+
+Set the `REDIS_HOST` and `REDIS_PORT` environment variables for
+easy configuration or pass `--host` and `--port` arguments.
+
 ### Writing from stdin to Redis List
 
-**redis-pipe** takes your values and generates `RPUSH` commands
-(generating a valid [Redis protocol](http://redis.io/topics/protocol))
-that are then piped into `redis-cli --pipe` ([Redis Mass Insertion](http://redis.io/topics/mass-insert))
+Pipe in value to `redis-pipe` and it will `LPUSH` them to the Redis List.
+
+```
+echo "hi there" | ./redis-pipe greetings
+```
+
+![Write from stdin to Redis with LPUSH](redis-lpush.png)
 
 ### Reading from Redis List to stdout
 
-`LPOP` all the values from the list and write them to `stdout`.
+If you call `redis-pipe` with a tty attached it will `LPOP` all values
+from the Redis List and write them to stdout.
+
+```
+./redis-pipe greetings
+```
+
+![Read from Redis with LPOP and write to stdout](redis-lpop.png)
+
+You can also limit the amount of values popped from the list.
+
+```
+./redis-pipe --count 100 greetings
+```
+
+Support for blocking mode with `BLPOP` is not supported yet.
 
 ## Examples
 
@@ -48,8 +72,3 @@ on a single server.
 ```
 ./redis-pipe logs > logs.txt
 ```
-
-## Usage
-
-You can set the `REDIS_HOST` and `REDIS_PORT` environment variables for
-easy configuration.
