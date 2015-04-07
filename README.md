@@ -6,11 +6,23 @@ It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
 
 ## Install
 
-Simply download the release and make it executable (prebuilt binaries are for Linux only for now).
+Simply download the release and extract it.
+
+### OSX
 
 ```
-wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4/redis-pipe
-chmod +x redis-pipe
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-darwin-amd64.zip
+unzip redis-pipe-v1.4.1-darwin-amd64.zip
+cd redis-pipe-v1.4.1-darwin-amd64
+./redis-pipe --help
+```
+
+### Linux
+
+```
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-linux-amd64.tar.gz
+tar -xvzf redis-pipe-v1.4.1-linux-amd64.tar.gz
+cd redis-pipe-v1.4.1-linux-amd64
 ./redis-pipe --help
 ```
 
