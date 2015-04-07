@@ -4,42 +4,6 @@
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
 It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
 
-## Install
-
-Simply download the release and extract it.
-
-### OSX
-
-```
-wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-darwin-amd64.zip
-unzip redis-pipe-v1.4.1-darwin-amd64.zip
-./redis-pipe --help
-```
-
-### Linux
-
-```
-wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-linux-amd64.tar.gz
-tar -xvzf redis-pipe-v1.4.1-linux-amd64.tar.gz
-./redis-pipe --help
-```
-
-## Build
-
-Install dependencies
-
-```
-go get github.com/andrew-d/go-termutil
-go get github.com/docopt/docopt-go
-go get github.com/garyburd/redigo/redis"
-```
-
-Build binary
-
-```
-go build redis-pipe.go
-```
-
 ## How it works
 
 ### Configuration
@@ -91,4 +55,40 @@ on a single server.
 
 ```
 ./redis-pipe logs > logs.txt
+```
+
+## Install
+
+Simply download the release and extract it.
+
+### OSX
+
+```
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-darwin-amd64.zip
+unzip redis-pipe-v1.4.1-darwin-amd64.zip
+./redis-pipe --help
+```
+
+### Linux
+
+```
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-linux-amd64.tar.gz
+tar -xvzf redis-pipe-v1.4.1-linux-amd64.tar.gz
+./redis-pipe --help
+```
+
+## Build
+
+Install dependencies
+
+```
+go get github.com/andrew-d/go-termutil
+go get github.com/docopt/docopt-go
+go get github.com/garyburd/redigo/redis"
+```
+
+Build binary
+
+```
+go build redis-pipe.go
 ```
