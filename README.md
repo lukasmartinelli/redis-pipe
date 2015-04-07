@@ -13,7 +13,6 @@ Simply download the release and extract it.
 ```
 wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-darwin-amd64.zip
 unzip redis-pipe-v1.4.1-darwin-amd64.zip
-cd redis-pipe-v1.4.1-darwin-amd64
 ./redis-pipe --help
 ```
 
@@ -22,7 +21,6 @@ cd redis-pipe-v1.4.1-darwin-amd64
 ```
 wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-linux-amd64.tar.gz
 tar -xvzf redis-pipe-v1.4.1-linux-amd64.tar.gz
-cd redis-pipe-v1.4.1-linux-amd64
 ./redis-pipe --help
 ```
 
