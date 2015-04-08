@@ -83,8 +83,8 @@ Install dependencies
 
 ```
 go get github.com/andrew-d/go-termutil
-go get github.com/docopt/docopt-go
-go get github.com/garyburd/redigo/redis"
+go get github.com/codegangsta/cli
+go get github.com/garyburd/redigo/redis
 ```
 
 Build binary
