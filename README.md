@@ -68,12 +68,12 @@ cat jobs.txt | redis-pipe jobs
 Process jobs on several workers and store the results.
 
 ```
-redis-pipe --count 10 jobs | python do-work.py | redis-pipe results
+./redis-pipe --count 10 jobs | python do-work.py | ./redis-pipe results
 ```
 
 Collect the results.
 ```
-redis-pipe results > results.txt
+./redis-pipe results > results.txt
 ```
 
 ## Install
@@ -83,16 +83,18 @@ Simply download the release and extract it.
 ### OSX
 
 ```
-wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-darwin-amd64.zip
-unzip redis-pipe-v1.4.1-darwin-amd64.zip
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe_darwin_amd64.zip
+unzip redis-pipe_darwin_amd64.zip
+cd redis-pipe_darwin_amd64
 ./redis-pipe --help
 ```
 
 ### Linux
 
 ```
-wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe-v1.4.1-linux-amd64.tar.gz
-tar -xvzf redis-pipe-v1.4.1-linux-amd64.tar.gz
+wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe_linux_amd64.tar.gz
+tar -xvzf redis-pipe_linux_amd64.tar
+cd redis-pipe_linux_amd64
 ./redis-pipe --help
 ```
 
