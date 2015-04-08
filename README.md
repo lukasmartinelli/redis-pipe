@@ -57,6 +57,25 @@ on a single server.
 ./redis-pipe logs > logs.txt
 ```
 
+### Very basic job queue
+
+Create jobs and store them.
+
+```
+cat jobs.txt | redis-pipe jobs
+```
+
+Process jobs on several workers and store the results.
+
+```
+redis-pipe --count 10 jobs | python do-work.py | redis-pipe results
+```
+
+Collect the results.
+```
+redis-pipe results > results.txt
+```
+
 ## Install
 
 Simply download the release and extract it.
