@@ -44,7 +44,7 @@ Support for blocking mode with `BLPOP` is not supported yet.
 
 ### Centralized Logging
 
-In this sample we pipe the syslog to a Redis List called `log`.
+In this sample we pipe the syslog to a Redis List called `logs`.
 
 ```
 tail -f /var/log/syslog | ./redis-pipe logs
@@ -62,7 +62,7 @@ on a single server.
 Create jobs and store them.
 
 ```
-cat jobs.txt | redis-pipe jobs
+cat jobs.txt | ./redis-pipe jobs
 ```
 
 Process jobs on several workers and store the results.
