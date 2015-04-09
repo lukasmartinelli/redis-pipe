@@ -75,7 +75,7 @@ func write(list string, conn redis.Conn) {
 func main() {
 	app := cli.NewApp()
 	app.Name = "redis-pipe"
-	app.Usage = "connect stdin with LPUSH and LPOP with stout."
+	app.Usage = "connect stdin with LPUSH and LPOP with stdout."
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "host",
