@@ -4,6 +4,32 @@
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
 It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
 
+## Installing from source
+
+```shell
+$ go get github.com/lukasmartinelli/redis-pipe
+```
+
+* To be able to use the the built binary in any shell,
+
+make sure to have your $GOPATH properly set in your
+
+   ~/.bash_profile (on OS X)
+
+or
+
+   ~/.bash_rc (on Linux)
+
+file e.g:
+
+```shell
+$ cat << ! >> ~/.bash_rc
+> export GOPATH="\$HOME/gopath"
+> export PATH="\$GOPATH:\$GOPATH/bin:\$PATH"
+> !
+$ source ~/.bash_rc
+```
+
 ## How it works
 
 ### Configuration
@@ -16,7 +42,7 @@ easy configuration or pass `--host` and `--port` arguments.
 Pipe in value to `redis-pipe` and it will `LPUSH` them to the Redis List.
 
 ```
-echo "hi there" | ./redis-pipe greetings
+echo "hi there" | redis-pipe greetings
 ```
 
 ![Write from stdin to Redis with LPUSH](redis-lpush.png)
@@ -27,7 +53,7 @@ If you call `redis-pipe` with a tty attached it will `LPOP` all values
 from the Redis List and write them to stdout.
 
 ```
-./redis-pipe greetings
+redis-pipe greetings
 ```
 
 ![Read from Redis with LPOP and write to stdout](redis-lpop.png)
@@ -35,7 +61,7 @@ from the Redis List and write them to stdout.
 You can also limit the amount of values popped from the list.
 
 ```
-./redis-pipe --count 100 greetings
+redis-pipe --count 100 greetings
 ```
 
 Support for blocking mode with `BLPOP` is not supported yet.
@@ -47,14 +73,14 @@ Support for blocking mode with `BLPOP` is not supported yet.
 In this sample we pipe the syslog to a Redis List called `logs`.
 
 ```
-tail -f /var/log/syslog | ./redis-pipe logs
+tail -f /var/log/syslog | redis-pipe logs
 ```
 
 You can now easily collect all the syslogs of your machines
 on a single server.
 
 ```
-./redis-pipe logs > logs.txt
+redis-pipe logs > logs.txt
 ```
 
 ### Very basic job queue
@@ -62,23 +88,25 @@ on a single server.
 Create jobs and store them.
 
 ```
-cat jobs.txt | ./redis-pipe jobs
+cat jobs.txt | redis-pipe jobs
 ```
 
 Process jobs on several workers and store the results.
 
 ```
-./redis-pipe --count 10 jobs | python do-work.py | ./redis-pipe results
+redis-pipe --count 10 jobs | python do-work.py | redis-pipe results
 ```
 
 Collect the results.
 ```
-./redis-pipe results > results.txt
+redis-pipe results > results.txt
 ```
 
-## Install
+## Installing from binary releases
 
 Simply download the release and extract it.
+Add the binary install path to your ~/.bash_rc or ~/.bash_profile file
+e.g
 
 ### OSX
 
@@ -86,7 +114,11 @@ Simply download the release and extract it.
 wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe_darwin_amd64.zip
 unzip redis-pipe_darwin_amd64.zip
 cd redis-pipe_darwin_amd64
-./redis-pipe --help
+cat << $ >> ~/.bash_profile
+> export PATH = "$(pwd):\$PATH"
+> $
+$ source ~/.bash_profile
+redis-pipe --help
 ```
 
 ### Linux
@@ -95,21 +127,9 @@ cd redis-pipe_darwin_amd64
 wget https://github.com/lukasmartinelli/redis-pipe/releases/download/v1.4.1/redis-pipe_linux_amd64.tar.gz
 tar -xvzf redis-pipe_linux_amd64.tar
 cd redis-pipe_linux_amd64
-./redis-pipe --help
-```
-
-## Build
-
-Install dependencies
-
-```
-go get github.com/andrew-d/go-termutil
-go get github.com/codegangsta/cli
-go get github.com/garyburd/redigo/redis
-```
-
-Build binary
-
-```
-go build redis-pipe.go
+cat << $ >> ~/.bash_rc
+> export PATH = "$(pwd):\$PATH"
+> $
+$ source ~/.bash_rc
+redis-pipe --help
 ```
