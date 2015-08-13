@@ -4,32 +4,6 @@
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
 It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
 
-## Installing from source
-
-```shell
-$ go get github.com/lukasmartinelli/redis-pipe
-```
-
-* To be able to use the the built binary in any shell,
-
-make sure to have your $GOPATH properly set in your
-
-   ~/.bash_profile (on OS X)
-
-or
-
-   ~/.bash_rc (on Linux)
-
-file e.g:
-
-```shell
-$ cat << ! >> ~/.bash_rc
-> export GOPATH="\$HOME/gopath"
-> export PATH="\$GOPATH:\$GOPATH/bin:\$PATH"
-> !
-$ source ~/.bash_rc
-```
-
 ## How it works
 
 ### Configuration
@@ -132,4 +106,23 @@ cat << $ >> ~/.bash_rc
 > $
 $ source ~/.bash_rc
 redis-pipe --help
+```
+
+## Installing from source
+
+```shell
+$ go get github.com/lukasmartinelli/redis-pipe
+```
+
+To be able to use the the built binary in any shell,
+make sure to have your `$GOPATH` properly set in your
+`~/.bash_profile` (on OS X) or `~/.bash_rc` (on Linux)
+file e.g:
+
+```shell
+$ cat << ! >> ~/.bash_rc
+> export GOPATH="\$HOME/gopath"
+> export PATH="\$GOPATH:\$GOPATH/bin:\$PATH"
+> !
+$ source ~/.bash_rc
 ```
