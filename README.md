@@ -2,7 +2,7 @@
 
 **redis-pipe** allows you to treat [Redis Lists](http://redis.io/topics/data-types#lists)
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
-It basically connects `stdin` and `stdout` with `LPUSH` and `LPOP`.
+It connects `stdin` and `stdout` with `LPUSH` and `LPOP`. For AMPQ based messages queues like RabbitMQ or ActiveMQ check out the successor project [pipecat](https://github.com/lukasmartinelli/pipecat).
 
 ## How it works
 
