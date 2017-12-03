@@ -1,4 +1,6 @@
-# redis-pipe [![Build Status](https://travis-ci.org/lukasmartinelli/redis-pipe.svg?branch=master)](https://travis-ci.org/lukasmartinelli/redis-pipe)
+# redis-pipe ![stability-deprecated](https://img.shields.io/badge/stability-deprecated-red.svg) [![Build Status](https://travis-ci.org/lukasmartinelli/redis-pipe.svg?branch=master)](https://travis-ci.org/lukasmartinelli/redis-pipe)
+
+> :warning: **Please migrate to [lukasmartinelli/pipecat](https://github.com/lukasmartinelli/pipecat)**. This repository is no longer maintained by Lukas Martinelli. 
 
 **redis-pipe** allows you to treat [Redis Lists](http://redis.io/topics/data-types#lists)
 as if they were [Unix pipes](https://en.wikipedia.org/wiki/Pipeline_%28Unix%29).
